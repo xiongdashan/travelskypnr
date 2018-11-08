@@ -1,4 +1,4 @@
-package pnrhelper
+package travelskypnr
 
 type PNR struct {
 	Code string

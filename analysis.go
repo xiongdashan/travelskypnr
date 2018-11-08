@@ -1,4 +1,6 @@
-package pnrhelper
+package travelskypnr
+
+
 
 import (
 	"regexp"
