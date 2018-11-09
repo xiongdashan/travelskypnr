@@ -27,6 +27,7 @@ func (p *PriceLine) Add(pos int, line string) bool {
 	pItems := strings.Split(line, "/")
 	price := &Price{}
 	for _, v := range pItems {
+		v = strings.TrimSpace(v)
 		scny := "SCNY"
 		if strings.HasPrefix(v, scny) {
 			price.ActualPrice = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
@@ -57,4 +58,5 @@ type Price struct {
 	Tax            float64 `json:"tax"`
 	AgencyFees     float64 `json:"agencyFees"`
 	NumberOfPeople int     `json:"numberOfPeople"`
+	Type           string  `json:"type"`
 }
