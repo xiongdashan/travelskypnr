@@ -45,6 +45,9 @@ func (t *TicketNumberLine) Add(pos int, line string, pl *PersonLine) bool {
 	} else {
 		tktItmes := strings.Fields(line)
 		// SSR TKNE CA HK1 PEKMEL 165 W26SEP 9992876664435/1/P2
+		if len(tktItmes) < 8 {
+			return false
+		}
 		tkt.Airline = tktItmes[2]
 		rph := strings.Split(tktItmes[7], "/")
 		tkt.Number = rph[0]
