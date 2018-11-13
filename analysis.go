@@ -10,6 +10,9 @@ type Analysis struct {
 }
 
 func NewAnalysis(txt string) *Analysis {
+
+	txt = strings.Replace(txt, "�b", "", -1)
+
 	return &Analysis{
 		PnrTxt: txt,
 	}
@@ -24,6 +27,7 @@ type PNRInfo struct {
 }
 
 func (a *Analysis) Output() *PNRInfo {
+
 	pos := strings.Index(a.PnrTxt, "1.")
 	if pos == -1 {
 		return nil
