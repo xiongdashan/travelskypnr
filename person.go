@@ -95,23 +95,29 @@ func (p *PersonLine) AddSSR(line string) bool {
 }
 
 // 证件类型/发证国家/证件号码/国籍/出生日期/性别/证件有效期限/SURNAME(姓)/FIRST-NAME(名)/MID-NAME(中间名)/持有人标识H/P1
-// 0P/      1 CN/   2 E30028197/3 CN/4 24AUG79/5 F/ 6   12SEP23/   LU/       FANGFANG/ P4
+// SSR DOC AM HK1 0P/      1 CN/   2 E30028197/3 CN/4 24AUG79/5 F/ 6   12SEP23/   LU/       FANGFANG/ P4
 func (p *PersonLine) ssr(line string) {
-	aryItem := strings.Fields(line)
+	aryItem := strings.Split(line, "/")
 	if len(aryItem) < 5 {
 		return
 	}
-	idInfostr := aryItem[4]
-	idItem := strings.Split(idInfostr, "/")
-	key := idItem[len(idItem)-1]
+
+	//证件类型 -- SSR DOC AM HK1 P
+	idAry := strings.Fields(aryItem[0])
+
+	//idInfostr := aryItem[4]
+	//idItem := strings.Split(idInfostr, "/")
+	key := strings.TrimSpace(aryItem[len(aryItem)-1])
+
 	psn := p.dict[key]
-	psn.IDType = idItem[0]
-	psn.IDIssue = idItem[1]
-	psn.IDNumber = idItem[2]
-	psn.Nationality = idItem[3]
-	psn.Birthday = idItem[4]
-	psn.Gender = idItem[5]
-	psn.Expired = idItem[6]
+	psn.IDType = idAry[len(idAry)-1] //idItem[0]
+
+	psn.IDIssue = aryItem[1]
+	psn.IDNumber = aryItem[2]
+	psn.Nationality = aryItem[3]
+	psn.Birthday = aryItem[4]
+	psn.Gender = aryItem[5]
+	psn.Expired = aryItem[6]
 	fmt.Println(p.dict[key].IDNumber)
 }
 
@@ -170,7 +176,7 @@ func (p *Person) splitName(name string) string {
 
 	if strings.HasSuffix(name, "MR") {
 		p.Name = strings.TrimSpace(strings.TrimRight(name, "MR"))
-		p.Gender = "M"
+		p.Gender = "M"
 	} else if strings.HasSuffix(name, "MS") {
 		p.Name = strings.TrimSpace(strings.TrimRight(name, "MS"))
 		p.Gender = "F"
