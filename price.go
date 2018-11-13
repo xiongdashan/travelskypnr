@@ -20,7 +20,7 @@ func (p *PriceLine) IsMatch(line string) bool {
 	return strings.HasPrefix(line, "FN/")
 }
 
-func (p *PriceLine) Add(pos int, line string) bool {
+func (p *PriceLine) Add(pos int, line string, pl *PersonLine) bool {
 	if p.IsMatch(line) == false {
 		return false
 	}
@@ -40,7 +40,7 @@ func (p *PriceLine) Add(pos int, line string) bool {
 		}
 		xcny := "XCNY"
 		if strings.HasPrefix(v, xcny) {
-			price.Tax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.Fax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
 			continue
 		}
 		p := "P"
@@ -51,9 +51,11 @@ func (p *PriceLine) Add(pos int, line string) bool {
 	// 目前只从扫描区里获取姓名，不包含婴，如果价格中含P，默认为儿童价
 	if price.PersonRPH > 0 {
 		price.Type = "CHD"
+
 	} else {
 		price.Type = "ADU"
 	}
+	price.NumberOfPeople = pl.TypeCount(price.Type)
 	p.PriceList = append(p.PriceList, price)
 	return true
 }
@@ -61,7 +63,7 @@ func (p *PriceLine) Add(pos int, line string) bool {
 type Price struct {
 	PersonRPH      int
 	ActualPrice    float64 `json:"amount"`
-	Tax            float64 `json:"tax"`
+	Fax            float64 `json:"fax"`
 	AgencyFees     float64 `json:"agencyFees"`
 	NumberOfPeople int     `json:"numberOfPeople"`
 	Type           string  `json:"type"`

@@ -1,7 +1,5 @@
 package travelskypnr
 
-
-
 import (
 	"regexp"
 	"strings"
@@ -60,7 +58,7 @@ func (a *Analysis) Output() *PNRInfo {
 			continue
 		}
 
-		priceLn.Add(i, l)
+		priceLn.Add(i, l, pl)
 	}
 
 	rev := &PNRInfo{

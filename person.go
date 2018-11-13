@@ -74,6 +74,15 @@ func (p *PersonLine) SetTktNumber(rph int, num string) {
 	}
 }
 
+func (p *PersonLine) TypeCount(ty string) (rev int) {
+	for _, v := range p.dict {
+		if v.Type == ty {
+			rev++
+		}
+	}
+	return
+}
+
 // ..AddSSR 证件信息
 func (p *PersonLine) AddSSR(line string) bool {
 
