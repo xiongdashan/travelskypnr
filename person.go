@@ -3,24 +3,25 @@ package travelskypnr
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 type PersonLine struct {
 	PnrCode string
-	dict    map[string]*Person
+	Dict    map[string]*Person
 	isPass  bool
 	isSSR   bool
 }
 
 func NewPersonLine() *PersonLine {
 	p := &PersonLine{}
-	p.dict = make(map[string]*Person)
+	p.Dict = make(map[string]*Person)
 	return p
 }
 
 func (p *PersonLine) Data() (rev []*Person) {
-	for _, v := range p.dict {
+	for _, v := range p.Dict {
 		rev = append(rev, v)
 	}
 	return
@@ -36,6 +37,9 @@ func (p *PersonLine) End() {
 	p.isPass = true
 }
 
+// XN/IN/Com/ILILLYROSE (AUG16)/P1
+const patternINF = `XN\/IN\/(.*[^\/]+)\/(.*[^\()]+)\(([A-Z0-9]{5})\)\/P(\d+)`
+
 // 扫描区姓名
 func (p *PersonLine) Add(pos int, line string) bool {
 
@@ -48,6 +52,13 @@ func (p *PersonLine) Add(pos int, line string) bool {
 		if p.ctcm(line) {
 			return true
 		}
+
+		// 匹配婴儿...
+		if match, _ := regexp.MatchString(patternINF, line); match {
+			p.setInft(line)
+			return true
+		}
+
 		return false
 	}
 
@@ -55,7 +66,7 @@ func (p *PersonLine) Add(pos int, line string) bool {
 	person.RPH = pos
 	pnrNum := person.splitName(line)
 	key := fmt.Sprintf("P%d", pos)
-	p.dict[key] = person
+	p.Dict[key] = person
 	if pnrNum != "" {
 		p.PnrCode = pnrNum
 	}
@@ -66,16 +77,37 @@ func (p *PersonLine) Add(pos int, line string) bool {
 
 }
 
-func (p *PersonLine) SetTktNumber(rph int, num string) {
-	for _, v := range p.dict {
+// 婴儿信息
+func (p *PersonLine) setInft(line string) {
+	regex := regexp.MustCompile(patternINF)
+	match := regex.FindAllStringSubmatch(line, -1)[0]
+	person := &Person{
+		Name:     fmt.Sprintf("%s/%s", match[1], match[2]),
+		Birthday: match[3],
+		Type:     Infant,
+	}
+	person.RPH, _ = strconv.Atoi(match[4])
+
+	key := fmt.Sprintf("P%sINF", match[4])
+	p.Dict[key] = person
+}
+
+// 设置票号
+func (p *PersonLine) SetTktNumber(rph int, num string, tType string) {
+	for _, v := range p.Dict {
 		if v.RPH == rph {
+			// 如果是婴儿，找相同类型的乘客
+			if tType == Infant && v.Type != Infant {
+				continue
+			}
 			v.TicketNumber = append(v.TicketNumber, num)
 		}
 	}
 }
 
+// 统计人数类型
 func (p *PersonLine) TypeCount(ty string) (rev int) {
-	for _, v := range p.dict {
+	for _, v := range p.Dict {
 		if v.Type == ty {
 			rev++
 		}
@@ -87,7 +119,6 @@ func (p *PersonLine) TypeCount(ty string) (rev int) {
 func (p *PersonLine) AddSSR(line string) bool {
 
 	if strings.HasPrefix(line, "SSR DOCS") {
-
 		p.ssr(line)
 		return true
 	}
@@ -109,7 +140,11 @@ func (p *PersonLine) ssr(line string) {
 	//idItem := strings.Split(idInfostr, "/")
 	key := strings.TrimSpace(aryItem[len(aryItem)-1])
 
-	psn := p.dict[key]
+	psn, ok := p.Dict[key]
+	if !ok {
+		fmt.Printf("无乘客信息--%s\n", key)
+		return
+	}
 	psn.IDType = idAry[len(idAry)-1] //idItem[0]
 
 	psn.IDIssue = aryItem[1]
@@ -118,7 +153,7 @@ func (p *PersonLine) ssr(line string) {
 	psn.Birthday = aryItem[4]
 	psn.Gender = aryItem[5]
 	psn.Expired = aryItem[6]
-	fmt.Println(p.dict[key].IDNumber)
+	fmt.Println(p.Dict[key].IDNumber)
 }
 
 func (p *PersonLine) ctcm(line string) bool {
@@ -136,7 +171,7 @@ func (p *PersonLine) ctcm(line string) bool {
 		if strings.HasPrefix(v, "P") == false {
 			v = fmt.Sprintf("P%s", v)
 		}
-		p.dict[v].Mobile = mobile
+		p.Dict[v].Mobile = mobile
 
 	}
 	return true
@@ -160,10 +195,10 @@ type Person struct {
 func (p *Person) splitName(name string) string {
 
 	name = strings.ToUpper(strings.TrimSpace(name))
-	if strings.HasSuffix(name, "CHD") {
+	if strings.HasSuffix(name, Child) {
 		//fmt.Println(name[:3])
 		p.Name = strings.TrimSpace(name[:len(name)-3])
-		p.Type = "CHD"
+		p.Type = Child
 		return ""
 	}
 
@@ -185,6 +220,6 @@ func (p *Person) splitName(name string) string {
 	}
 
 	//p.Name = name
-	p.Type = "ADU"
+	p.Type = Adult
 	return ""
 }

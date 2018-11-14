@@ -29,30 +29,42 @@ func (t *TicketNumberLine) Data() []*TicketNumber {
 	return t.TicketNumberList
 }
 
-func (t *TicketNumberLine) Add(pos int, line string, pl *PersonLine) bool {
+func (t *TicketNumberLine) Add(pos int, line string) bool {
 	if t.IsMatch(line) == false {
 		return false
 	}
 
 	tkt := &TicketNumber{}
-	//rph := ""
 
 	// TN/000-000000000/P1
 	if t.isTn {
-		itemAry := strings.Split(line, "/")
-		tkt.Number = itemAry[1]
-		tkt.PersonRPH = t.rphToi(itemAry[2]) //strconv.Atoi(strings.Replace(itemAry[2], "P", "", -1))
+		return true
+		// regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
+		// if regex.MatchString(line) == false {
+		// 	return true
+		// }
+		// match := regex.FindAllStringSubmatch(line, -1)[0]
+		// tkt.Number = match[2]
+		// tkt.PersonRPH = t.rphToi(match[3])
 	} else {
 		tktItmes := strings.Fields(line)
-		// SSR TKNE CA HK1 PEKMEL 165 W26SEP 9992876664435/1/P2
+		// SSR TKNE CA HK1 PEKMEL 165 W26SEP (INF)? 9992876664435/1/P2
 		if len(tktItmes) > 8 {
 			return true
 		}
 		tkt.Airline = tktItmes[2]
+
 		rph := strings.Split(tktItmes[7], "/")
+
 		tkt.Number = rph[0]
+
+		//如果是婴儿票号
+		if strings.HasPrefix(tkt.Number, Infant) {
+			tkt.Number = tkt.Number[3:]
+			tkt.Type = Infant
+		}
 		tkt.JourneyRPH, _ = strconv.Atoi(rph[1])
-		tkt.PersonRPH = t.rphToi(rph[2]) //strconv.Atoi(strings.Replace(rph[2], "P", "", -1))
+		tkt.PersonRPH = t.rphToi(rph[2])
 	}
 
 	for _, v := range t.TicketNumberList {
@@ -61,7 +73,6 @@ func (t *TicketNumberLine) Add(pos int, line string, pl *PersonLine) bool {
 		}
 	}
 
-	pl.SetTktNumber(tkt.PersonRPH, tkt.Number)
 	t.TicketNumberList = append(t.TicketNumberList, tkt)
 	//fmt.Println(tkt.Number)
 	return true
@@ -78,4 +89,5 @@ type TicketNumber struct {
 	Number     string `json:"number"`
 	JourneyRPH int    `json:"journeyRPH"`
 	PersonRPH  int    `json:"personRPH"`
+	Type       string `json:"type"`
 }
