@@ -79,7 +79,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	}
 
 	for _, v := range t.TicketNumberList {
-		if v.Number == tkt.Number {
+		if v.Number == tkt.Number && v.JourneyRPH == tkt.JourneyRPH {
 			return true
 		}
 	}
