@@ -58,7 +58,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	} else {
 		tktItmes := strings.Fields(line)
 		// SSR TKNE CA HK1 PEKMEL 165 W26SEP (INF)? 9992876664435/1/P2
-		if len(tktItmes) > 2 {
+		if len(tktItmes) <= 2 {
 			// 非自有配制出票，SSR信息解析异常，从TN项获取票号
 			t.ssrError = true
 			return true
