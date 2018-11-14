@@ -1,6 +1,7 @@
 package travelskypnr
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -8,6 +9,7 @@ import (
 type TicketNumberLine struct {
 	TicketNumberList []*TicketNumber
 	isTn             bool
+	ssrError         bool
 }
 
 func NewTktLine() *TicketNumberLine {
@@ -37,19 +39,28 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	tkt := &TicketNumber{}
 
 	// TN/000-000000000/P1
-	if t.isTn {
+	if t.isTn && t.ssrError {
+		regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
+		if regex.MatchString(line) == false {
+			return true
+		}
+		match := regex.FindAllStringSubmatch(line, -1)[0]
+		tkt.Number = match[2]
+		tkt.PersonRPH = t.rphToi(match[3])
+
+		//婴儿票
+		if match[1] != "" {
+			tkt.Type = Infant
+		}
+
 		return true
-		// regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
-		// if regex.MatchString(line) == false {
-		// 	return true
-		// }
-		// match := regex.FindAllStringSubmatch(line, -1)[0]
-		// tkt.Number = match[2]
-		// tkt.PersonRPH = t.rphToi(match[3])
+
 	} else {
 		tktItmes := strings.Fields(line)
 		// SSR TKNE CA HK1 PEKMEL 165 W26SEP (INF)? 9992876664435/1/P2
-		if len(tktItmes) > 8 {
+		if len(tktItmes) > 2 {
+			// 非自有配制出票，SSR信息解析异常，从TN项获取票号
+			t.ssrError = true
 			return true
 		}
 		tkt.Airline = tktItmes[2]
