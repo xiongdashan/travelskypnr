@@ -78,6 +78,8 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 		tkt.PersonRPH = t.rphToi(rph[2])
 	}
 
+	tkt.Number = strings.Replace(tkt.Number, "", "-", -1)
+
 	for _, v := range t.TicketNumberList {
 		if v.Number == tkt.Number && v.JourneyRPH == tkt.JourneyRPH {
 			return true
