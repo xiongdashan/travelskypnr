@@ -94,7 +94,17 @@ func (a *Analysis) Output() *PNRInfo {
 				key = fmt.Sprintf("P%dINF", t.PersonRPH)
 			}
 			if k == key {
-				p.TicketNumber = append(p.TicketNumber, t.Number)
+				// 判断是否已经存在
+				has := false
+				for _, pt := range p.TicketNumber {
+					if pt == t.Number {
+						has = true
+						continue
+					}
+				}
+				if has == false {
+					p.TicketNumber = append(p.TicketNumber, t.Number)
+				}
 			}
 		}
 		for _, pr := range priceLn.PriceList {
