@@ -87,7 +87,7 @@ func (p *PriceLine) bspPrice(priceItem []string) *Price {
 		// 税总和
 		xcny := "XCNY"
 		if strings.HasPrefix(v, xcny) {
-			price.Fax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.Tax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
 			continue
 		}
 		// 乘客序号
@@ -119,7 +119,7 @@ func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 		// 税总和
 		xcny := "BCNY"
 		if strings.HasPrefix(v, xcny) {
-			price.Fax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.Tax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
 			continue
 		}
 		// 乘客序号
@@ -134,7 +134,7 @@ func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 type Price struct {
 	PersonRPH      int
 	ActualPrice    float64 `json:"amount"`
-	Fax            float64 `json:"fax"`
+	Tax            float64 `json:"tax"`
 	AgencyFees     float64 `json:"agencyFees"`
 	NumberOfPeople int     `json:"numberOfPeople"`
 	Type           string  `json:"type"`
