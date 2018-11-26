@@ -11,7 +11,10 @@ import (
 type JourneyLine struct {
 	Regex       *regexp.Regexp
 	JourneyList []*Journey
+	isARNK      bool
 }
+
+var arnk = "ARNK"
 
 func NewJourneyLine() *JourneyLine {
 	j := &JourneyLine{}
@@ -24,22 +27,30 @@ func (j *JourneyLine) Data() []*Journey {
 }
 
 func (j *JourneyLine) IsMatch(line string) bool {
+
+	if strings.HasPrefix(line, arnk) {
+		j.isARNK = true
+		return true
+	}
 	return j.Regex.MatchString(strings.TrimSpace(line))
 }
 
 func (j *JourneyLine) Add(pos int, line string) bool {
+
+	line = strings.TrimSpace(line)
+
 	if j.IsMatch(line) == false {
 		return false
 	}
-	line = strings.TrimSpace(line)
 
 	var jny *Journey
 
 	//地面段
-	if strings.HasPrefix(line, "ARNK") {
+	if j.isARNK {
 		jny = &Journey{
 			FlightNumber: "ARNK",
 		}
+		j.isARNK = false
 	} else {
 		jny = newJourney(line)
 	}
@@ -83,7 +94,11 @@ func newJourney(line string) *Journey {
 
 func (j *Journey) formatDate(input string) time.Time {
 	val := fmt.Sprintf("%s%d", input[2:], time.Now().Year())
-	t, _ := time.Parse("02Jan2006", val)
+	t, err := time.Parse("02Jan2006", val)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//fmt.Println(t.Format("2006-01-02"))
 	//t = t.AddDate(1, 0, 0)
 
 	return t
