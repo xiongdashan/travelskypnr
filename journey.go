@@ -31,7 +31,19 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 	if j.IsMatch(line) == false {
 		return false
 	}
-	jny := newJourney(line)
+	line = strings.TrimSpace(line)
+
+	var jny *Journey
+
+	//地面段
+	if strings.HasPrefix(line, "ARNK") {
+		jny = &Journey{
+			FlightNumber: "ARNK",
+		}
+	} else {
+		jny = newJourney(line)
+	}
+
 	jny.RPH = len(j.JourneyList) + 1
 	j.JourneyList = append(j.JourneyList, jny)
 	//fmt.Println(jny.FlightNumber)
@@ -63,7 +75,9 @@ func newJourney(line string) *Journey {
 	j.ArrCode = itemAry[3][3:]
 	j.DepartTime = itemAry[5]
 	j.ArrTime = j.formatTime(itemAry[6])
-	j.Terminal = itemAry[8]
+	if len(itemAry) >= 9 {
+		j.Terminal = itemAry[8]
+	}
 	return j
 }
 
