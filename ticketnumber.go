@@ -31,6 +31,8 @@ func (t *TicketNumberLine) Data() []*TicketNumber {
 	return t.TicketNumberList
 }
 
+const combinDatePattern = `([A-Z]{1}\d{2}[A-Z]{3})`
+
 func (t *TicketNumberLine) Add(pos int, line string) bool {
 	if t.IsMatch(line) == false {
 		return false
@@ -56,16 +58,34 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 		return true
 
 	} else {
-		tktItmes := strings.Fields(line)
+
+		reg := regexp.MustCompile(combinDatePattern)
+
+		idx := reg.FindAllStringIndex(line, -1)
+
+		if len(idx) == 0 {
+			t.ssrError = true
+			return true
+		}
+
+		prefix := line[:idx[0][0]]
+
+		tktItmes := strings.Fields(prefix)
+
+		//tktItmes := strings.Fields(line)
 		// SSR TKNE CA HK1 PEKMEL 165 W26SEP (INF)? 9992876664435/1/P2
+
 		if len(tktItmes) <= 2 {
 			// 非自有配制出票，SSR信息解析异常，从TN项获取票号
 			t.ssrError = true
 			return true
 		}
+
 		tkt.Airline = tktItmes[2]
 
-		rph := strings.Split(tktItmes[7], "/")
+		suffix := line[idx[0][1]:]
+
+		rph := strings.Split(suffix, "/")
 
 		tkt.Number = rph[0]
 
