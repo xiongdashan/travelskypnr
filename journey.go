@@ -98,7 +98,10 @@ func (j *Journey) formatDate(input string) time.Time {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//fmt.Println(t.Format("2006-01-02"))
+	fmt.Println(t.Format("2006-01-02"))
+	if t.Month() < time.Now().Month() {
+		t = t.AddDate(1, 0, 0)
+	}
 	//t = t.AddDate(1, 0, 0)
 
 	return t
