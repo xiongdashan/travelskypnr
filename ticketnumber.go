@@ -55,7 +55,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 			tkt.Type = Infant
 		}
 
-		return true
+		//return true
 
 	} else {
 
