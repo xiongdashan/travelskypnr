@@ -18,7 +18,7 @@ var arnk = "ARNK"
 
 func NewJourneyLine() *JourneyLine {
 	j := &JourneyLine{}
-	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+([A-Z]{2})(\d{2})([A-Z]{3})\s+([A-Z]{6})\s+([A-Z0-9]{2,3})\s+(\d{4})\s+(\d{4})(\+(\d{1}))?\s+([A-Z]{1})`)
+	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+([A-Z]{2})(\d{2})([A-Z]{3})(\s+|\d{2})([A-Z]{6})\s+([A-Z0-9]{2,3})\s+(\d{4})\s+(\d{4})(\+(\d{1}))?\s+([A-Z]{1})`)
 	return j
 }
 
@@ -52,7 +52,7 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 		}
 		j.isARNK = false
 	} else {
-		jny = newJourney(line)
+		jny = j.newJourney(line)
 	}
 
 	jny.RPH = len(j.JourneyList) + 1
@@ -74,21 +74,25 @@ type Journey struct {
 	Terminal     string    `json:"terminal"`
 }
 
-func newJourney(line string) *Journey {
+func (jl *JourneyLine) newJourney(line string) *Journey {
 	line = strings.TrimSpace(line)
-	regex := regexp.MustCompile(`\s+`)
-	itemAry := regex.Split(line, -1)
+
+	matche := jl.Regex.FindAllStringSubmatch(line, -1)[0]
+
+	//regex := regexp.MustCompile(`\s+`)
+	//itemAry := regex.Split(line, -1)
 	j := &Journey{}
-	j.FlightNumber = itemAry[0]
-	j.Combin = itemAry[1]
-	j.DepartDate = j.formatDate(itemAry[2])
-	j.DepartCode = itemAry[3][:3]
-	j.ArrCode = itemAry[3][3:]
-	j.DepartTime = itemAry[5]
-	j.ArrTime = j.formatTime(itemAry[6])
-	if len(itemAry) >= 9 {
-		j.Terminal = itemAry[8]
-	}
+	j.FlightNumber = matche[1] //itemAry[0]
+	j.Combin = matche[2]       //itemAry[1]
+	j.DepartDate = j.formatDate(matche[3] /*itemAry[2]*/)
+	j.DepartCode = matche[8][:3]         //itemAry[3][:3]
+	j.ArrCode = matche[8][3:]            //itemAry[3][3:]
+	j.DepartTime = matche[10]            //itemAry[5]
+	j.ArrTime = j.formatTime(matche[11]) //j.formatTime(itemAry[6])
+	j.Terminal = matche[14]
+	// if len(itemAry) >= 9 {
+	// 	j.Terminal = itemAry[8]
+	// }
 	return j
 }
 
