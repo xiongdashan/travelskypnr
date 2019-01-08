@@ -10,6 +10,7 @@ type TicketNumberLine struct {
 	TicketNumberList []*TicketNumber
 	isTn             bool
 	ssrError         bool
+	ssr              int
 }
 
 func NewTktLine() *TicketNumberLine {
@@ -18,6 +19,7 @@ func NewTktLine() *TicketNumberLine {
 
 func (t *TicketNumberLine) IsMatch(line string) bool {
 	if strings.HasPrefix(line, "SSR TKNE") {
+		t.ssr++
 		return true
 	}
 	if strings.HasPrefix(line, "TN/") {
@@ -41,7 +43,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	tkt := &TicketNumber{}
 
 	// TN/000-000000000/P1
-	if t.isTn && t.ssrError {
+	if t.isTn && (t.ssrError || t.ssr == 0) {
 		regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
 		if regex.MatchString(line) == false {
 			return true
