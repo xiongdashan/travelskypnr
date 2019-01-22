@@ -101,6 +101,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	}
 
 	tkt.Number = strings.Replace(tkt.Number, "-", "", -1)
+	tkt.Number = strings.TrimSpace(tkt.Number)
 
 	for _, v := range t.TicketNumberList {
 		if v.Number == tkt.Number && v.JourneyRPH == tkt.JourneyRPH {
