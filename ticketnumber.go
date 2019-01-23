@@ -89,7 +89,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 
 		rph := strings.Split(suffix, "/")
 
-		tkt.Number = rph[0]
+		tkt.Number = strings.TrimSpace(rph[0])
 
 		//如果是婴儿票号
 		if strings.HasPrefix(tkt.Number, Infant) {
