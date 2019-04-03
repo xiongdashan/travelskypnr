@@ -122,7 +122,29 @@ func (p *PersonLine) AddSSR(line string) bool {
 		p.ssr(line)
 		return true
 	}
+	if strings.HasPrefix(line, "SSR FOID") {
+		p.foid(line)
+		return true
+	}
 	return false
+}
+
+// foid SSR FOID CA HK1 NI220182198906185118/P1
+func (p *PersonLine) foid(line string) {
+	aryItem := strings.Split(line, "/")
+	if len(aryItem) < 2 {
+		return
+	}
+	idAry := strings.Fields(aryItem[0])
+	idInfo := idAry[len(idAry)-1]
+	key := strings.TrimSpace(aryItem[len(aryItem)-1])
+	psn, ok := p.Dict[key]
+	if !ok {
+		fmt.Print("无乘客信e")
+		return
+	}
+	psn.IDType = "NI"
+	psn.IDNumber = idInfo[2:]
 }
 
 // 证件类型/发证国家/证件号码/国籍/出生日期/性别/证件有效期限/SURNAME(姓)/FIRST-NAME(名)/MID-NAME(中间名)/持有人标识H/P1
