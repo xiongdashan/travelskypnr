@@ -63,15 +63,16 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 
 type Journey struct {
 	RPH          int
-	FlightNumber string    `json:"flightNumber"`
-	Combin       string    `json:"combin"`
-	DepartDate   time.Time `json:"departDate"`
-	DepartTime   string    `json:"departTime"`
-	ArrDate      time.Time `json:"arrDate"`
-	ArrTime      string    `json:"arrTime"`
-	DepartCode   string    `json:"departCode"`
-	ArrCode      string    `json:"arrCode"`
-	Terminal     string    `json:"terminal"`
+	FlightNumber string `json:"flightNumber"`
+	Combin       string `json:"combin"`
+	DepartDate   string `json:"departDate"`
+	DepartTime   string `json:"departTime"`
+	ArrDate      string `json:"arrDate"`
+	ArrTime      string `json:"arrTime"`
+	DepartCode   string `json:"departCode"`
+	ArrCode      string `json:"arrCode"`
+	Terminal     string `json:"terminal"`
+	innerDptDate time.Time
 }
 
 func (jl *JourneyLine) newJourney(line string) *Journey {
@@ -84,7 +85,8 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 	j := &Journey{}
 	j.FlightNumber = matche[1] //itemAry[0]
 	j.Combin = matche[2]       //itemAry[1]
-	j.DepartDate = j.formatDate(matche[3] /*itemAry[2]*/)
+	j.innerDptDate = j.formatDate(matche[3] /*itemAry[2]*/)
+	j.DepartDate = j.innerDptDate.Format("2006-01-02")
 	j.DepartCode = matche[8][:3]         //itemAry[3][:3]
 	j.ArrCode = matche[8][3:]            //itemAry[3][3:]
 	j.DepartTime = matche[10]            //itemAry[5]
@@ -119,6 +121,6 @@ func (j *Journey) formatTime(input string) string {
 	}
 	match := regex.FindAllStringSubmatch(input, -1)[0]
 	val, _ := strconv.Atoi(match[2])
-	j.ArrDate = j.DepartDate.AddDate(0, 0, val)
+	j.ArrDate = j.innerDptDate.AddDate(0, 0, val).Format("2006-01-02")
 	return match[1]
 }

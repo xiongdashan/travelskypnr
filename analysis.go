@@ -107,6 +107,12 @@ func (a *Analysis) Output() *PNRInfo {
 				}
 			}
 		}
+
+		// 如果无票号，赋值空票号
+		if len(p.TicketNumber) == 0 {
+			p.TicketNumber = append(p.TicketNumber, "")
+		}
+
 		for _, pr := range priceLn.PriceList {
 			if p.Type == pr.Type {
 				pr.NumberOfPeople++
@@ -117,7 +123,5 @@ func (a *Analysis) Output() *PNRInfo {
 
 	rev.Price = priceLn.PriceList
 	rev.Journey = j.JourneyList
-	rev.TicketNumer = tl.TicketNumberList
-
 	return rev
 }
