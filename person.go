@@ -211,7 +211,7 @@ type Person struct {
 	Gender       string   `json:"gender"`
 	Expired      string   `json:"expired"`
 	Mobile       string   `json:"mobile"`
-	TicketNumber string   `json:"tktNumber"`
+	TicketNumber string   `json:"tktNumbers"`
 	TktAry       []string `json:"tktAry"`
 }
 
