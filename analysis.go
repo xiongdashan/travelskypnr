@@ -96,22 +96,19 @@ func (a *Analysis) Output() *PNRInfo {
 			if k == key {
 				// 判断是否已经存在
 				has := false
-				for _, pt := range p.TicketNumber {
+				for _, pt := range p.TktAry {
 					if pt == t.Number {
 						has = true
 						continue
 					}
 				}
 				if has == false {
-					p.TicketNumber = append(p.TicketNumber, t.Number)
+					p.TktAry = append(p.TktAry, t.Number)
 				}
 			}
 		}
 
-		// 如果无票号，赋值空票号
-		if len(p.TicketNumber) == 0 {
-			p.TicketNumber = append(p.TicketNumber, "")
-		}
+		p.TktStr()
 
 		for _, pr := range priceLn.PriceList {
 			if p.Type == pr.Type {

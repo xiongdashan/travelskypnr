@@ -100,7 +100,7 @@ func (p *PersonLine) SetTktNumber(rph int, num string, tType string) {
 			if tType == Infant && v.Type != Infant {
 				continue
 			}
-			v.TicketNumber = append(v.TicketNumber, num)
+			v.TktAry = append(v.TktAry, num)
 		}
 	}
 }
@@ -211,7 +211,15 @@ type Person struct {
 	Gender       string   `json:"gender"`
 	Expired      string   `json:"expired"`
 	Mobile       string   `json:"mobile"`
-	TicketNumber []string `json:"tktNumber"`
+	TicketNumber string   `json:"tktNumber"`
+	TktAry       []string `json:"tktAry"`
+}
+
+func (p *Person) TktStr() {
+	if len(p.TktAry) == 0 {
+		return
+	}
+	p.TicketNumber = strings.Join(p.TktAry, ",")
 }
 
 func (p *Person) splitName(name string) string {
