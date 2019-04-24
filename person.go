@@ -193,7 +193,11 @@ func (p *PersonLine) ctcm(line string) bool {
 		if strings.HasPrefix(v, "P") == false {
 			v = fmt.Sprintf("P%s", v)
 		}
-		p.Dict[v].Mobile = mobile
+		if pd, ok := p.Dict[v]; ok {
+			pd.Mobile = mobile
+		} else {
+			fmt.Println(v)
+		}
 
 	}
 	return true
