@@ -83,7 +83,7 @@ func (p *PersonLine) setInft(line string) {
 	person := &Person{
 		Name:     fmt.Sprintf("%s/%s", match[1], match[2]),
 		Birthday: match[3],
-		Type:     Infant,
+		PTC:      Infant,
 	}
 	person.RPH, _ = strconv.Atoi(match[4])
 
@@ -96,7 +96,7 @@ func (p *PersonLine) SetTktNumber(rph int, num string, tType string) {
 	for _, v := range p.Dict {
 		if v.RPH == rph {
 			// 如果是婴儿，找相同类型的乘客
-			if tType == Infant && v.Type != Infant {
+			if tType == Infant && v.PTC != Infant {
 				continue
 			}
 			v.TktAry = append(v.TktAry, num)
@@ -107,7 +107,7 @@ func (p *PersonLine) SetTktNumber(rph int, num string, tType string) {
 // 统计人数类型
 func (p *PersonLine) TypeCount(ty string) (rev int) {
 	for _, v := range p.Dict {
-		if v.Type == ty {
+		if v.PTC == ty {
 			rev++
 		}
 	}
@@ -203,7 +203,7 @@ func (p *PersonLine) ctcm(line string) bool {
 type Person struct {
 	RPH          int      `json:"rph"`
 	Name         string   `json:"name"`
-	Type         string   `json:"type"`
+	PTC          string   `json:"ptc"`
 	IDType       string   `json:"idType"`
 	IDNumber     string   `json:"idNumber"`
 	IDIssue      string   `json:"idIssue"`
@@ -228,7 +228,7 @@ func (p *Person) splitName(name string) string {
 	name = strings.ToUpper(strings.TrimSpace(name))
 	if strings.HasSuffix(name, Child) {
 		p.Name = strings.TrimSpace(name[:len(name)-3])
-		p.Type = Child
+		p.PTC = Child
 		return ""
 	}
 
@@ -249,6 +249,6 @@ func (p *Person) splitName(name string) string {
 		p.Name = name
 	}
 
-	p.Type = Adult
+	p.PTC = Adult
 	return ""
 }
