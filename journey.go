@@ -39,7 +39,7 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 
 	line = strings.TrimSpace(line)
 
-	if j.IsMatch(line) == false {
+	if !j.IsMatch(line) {
 		return false
 	}
 
@@ -57,14 +57,13 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 
 	jny.RPH = len(j.JourneyList) + 1
 	j.JourneyList = append(j.JourneyList, jny)
-	//fmt.Println(jny.FlightNumber)
 	return true
 }
 
 type Journey struct {
 	RPH          int
 	FlightNumber string `json:"flightNumber"`
-	Combin       string `json:"combin"`
+	CabinClass   string `json:"cabinClass"`
 	DepartDate   string `json:"departDate"`
 	DepartTime   string `json:"departTime"`
 	ArrDate      string `json:"arrDate"`
@@ -80,21 +79,17 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 
 	matche := jl.Regex.FindAllStringSubmatch(line, -1)[0]
 
-	//regex := regexp.MustCompile(`\s+`)
-	//itemAry := regex.Split(line, -1)
 	j := &Journey{}
-	j.FlightNumber = matche[1] //itemAry[0]
-	j.Combin = matche[2]       //itemAry[1]
-	j.innerDptDate = j.formatDate(matche[3] /*itemAry[2]*/)
+	j.FlightNumber = matche[1]
+	j.CabinClass = matche[2]
+	j.innerDptDate = j.formatDate(matche[3])
 	j.DepartDate = j.innerDptDate.Format("2006-01-02")
-	j.DepartCode = matche[8][:3]         //itemAry[3][:3]
-	j.ArrCode = matche[8][3:]            //itemAry[3][3:]
-	j.DepartTime = matche[10]            //itemAry[5]
-	j.ArrTime = j.formatTime(matche[11]) //j.formatTime(itemAry[6])
+	j.DepartCode = matche[8][:3]
+	j.ArrCode = matche[8][3:]
+	j.DepartTime = matche[10]
+	j.ArrTime = j.formatTime(matche[11])
 	j.Terminal = matche[14]
-	// if len(itemAry) >= 9 {
-	// 	j.Terminal = itemAry[8]
-	// }
+
 	return j
 }
 
@@ -108,14 +103,12 @@ func (j *Journey) formatDate(input string) time.Time {
 	if t.Month() < time.Now().Month() {
 		t = t.AddDate(1, 0, 0)
 	}
-	//t = t.AddDate(1, 0, 0)
-
 	return t
 }
 
 func (j *Journey) formatTime(input string) string {
 	regex := regexp.MustCompile(`(\d{4})\+(\d+)`)
-	if regex.MatchString(input) == false {
+	if !regex.MatchString(input) {
 		j.ArrDate = j.DepartDate
 		return input
 	}

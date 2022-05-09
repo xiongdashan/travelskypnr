@@ -102,7 +102,7 @@ func (a *Analysis) Output() *PNRInfo {
 						continue
 					}
 				}
-				if has == false {
+				if !has {
 					p.TktAry = append(p.TktAry, t.Number)
 				}
 			}

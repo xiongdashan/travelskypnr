@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/otwdev/galaxylib"
+	"github.com/spf13/cast"
 )
 
 type PriceLine struct {
@@ -33,7 +33,7 @@ func (p *PriceLine) Add(pos int, line string) bool {
 		p.IsUATP = true
 	}
 
-	if p.IsMatch(line) == false {
+	if !p.IsMatch(line) {
 		return false
 	}
 	pItems := strings.Split(line, "/")
@@ -75,25 +75,25 @@ func (p *PriceLine) bspPrice(priceItem []string) *Price {
 		//票面
 		scny := "SCNY"
 		if strings.HasPrefix(v, scny) {
-			price.ActualPrice = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.ActualPrice = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 代理费
 		c := "C"
 		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFees = galaxylib.DefaultGalaxyConverter.MustFloat(v[1:])
+			price.AgencyFees = cast.ToFloat64(v[1:])
 			continue
 		}
 		// 税总和
 		xcny := "XCNY"
 		if strings.HasPrefix(v, xcny) {
-			price.Tax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.Tax = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 乘客序号
 		p := "P"
 		if len(v) > 1 && strings.HasPrefix(v, p) {
-			price.PersonRPH = galaxylib.DefaultGalaxyConverter.MustInt(v[1:])
+			price.PersonRPH = cast.ToInt(v[1:])
 		}
 	}
 	return price
@@ -107,25 +107,25 @@ func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 		//票面
 		scny := "RCNY"
 		if strings.HasPrefix(v, scny) {
-			price.ActualPrice = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.ActualPrice = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 代理费
 		c := "C"
 		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFees = galaxylib.DefaultGalaxyConverter.MustFloat(v[1:])
+			price.AgencyFees = cast.ToFloat64(v[1:])
 			continue
 		}
 		// 税总和
 		xcny := "BCNY"
 		if strings.HasPrefix(v, xcny) {
-			price.Tax = galaxylib.DefaultGalaxyConverter.MustFloat(v[4:])
+			price.Tax = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 乘客序号
 		p := "P"
 		if len(v) > 1 && strings.HasPrefix(v, p) {
-			price.PersonRPH = galaxylib.DefaultGalaxyConverter.MustInt(v[1:])
+			price.PersonRPH = cast.ToInt(v[1:])
 		}
 	}
 	return price

@@ -36,7 +36,7 @@ func (t *TicketNumberLine) Data() []*TicketNumber {
 const combinDatePattern = `([A-Z]{1}\d{2}[A-Z]{3})`
 
 func (t *TicketNumberLine) Add(pos int, line string) bool {
-	if t.IsMatch(line) == false {
+	if !t.IsMatch(line) {
 		return false
 	}
 
@@ -45,7 +45,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	// TN/000-000000000/P1
 	if t.isTn && (t.ssrError || t.ssr == 0) {
 		regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
-		if regex.MatchString(line) == false {
+		if !regex.MatchString(line) {
 			return true
 		}
 		match := regex.FindAllStringSubmatch(line, -1)[0]

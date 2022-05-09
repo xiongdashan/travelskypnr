@@ -11,7 +11,6 @@ type PersonLine struct {
 	PnrCode string
 	Dict    map[string]*Person
 	isPass  bool
-	isSSR   bool
 }
 
 func NewPersonLine() *PersonLine {
@@ -29,7 +28,7 @@ func (p *PersonLine) Data() (rev []*Person) {
 
 func (p *PersonLine) IsMatch(line string) bool {
 
-	return p.isPass == false
+	return !p.isPass
 }
 
 // End 扫描区姓名结束...
@@ -43,7 +42,7 @@ const patternINF = `XN\/IN\/(.*[^\/]+)\/(.*[^\()]+)\(([A-Z0-9]{5})\)\/P(\d+)`
 // 扫描区姓名
 func (p *PersonLine) Add(pos int, line string) bool {
 
-	if p.IsMatch(line) == false {
+	if !p.IsMatch(line) {
 		// 如果扫描区已过，尝试匹配SSR信息
 		if p.AddSSR(line) {
 			return true
@@ -158,8 +157,6 @@ func (p *PersonLine) ssr(line string) {
 	//证件类型 -- SSR DOC AM HK1 P
 	idAry := strings.Fields(aryItem[0])
 
-	//idInfostr := aryItem[4]
-	//idItem := strings.Split(idInfostr, "/")
 	key := strings.TrimSpace(aryItem[len(aryItem)-1])
 
 	psn, ok := p.Dict[key]
@@ -180,7 +177,7 @@ func (p *PersonLine) ssr(line string) {
 
 func (p *PersonLine) ctcm(line string) bool {
 	regex := regexp.MustCompile(`OSI\s+[A-Z0-9]{2}\s+CTCM(\d{11})\/([P0-9\/]+)`)
-	if regex.MatchString(line) == false {
+	if !regex.MatchString(line) {
 		return false
 	}
 	ctcmItems := regex.FindAllStringSubmatch(line, -1)[0]
@@ -190,7 +187,7 @@ func (p *PersonLine) ctcm(line string) bool {
 		if v == "" {
 			continue
 		}
-		if strings.HasPrefix(v, "P") == false {
+		if !strings.HasPrefix(v, "P") {
 			v = fmt.Sprintf("P%s", v)
 		}
 		if pd, ok := p.Dict[v]; ok {
@@ -230,7 +227,6 @@ func (p *Person) splitName(name string) string {
 
 	name = strings.ToUpper(strings.TrimSpace(name))
 	if strings.HasSuffix(name, Child) {
-		//fmt.Println(name[:3])
 		p.Name = strings.TrimSpace(name[:len(name)-3])
 		p.Type = Child
 		return ""
@@ -253,7 +249,6 @@ func (p *Person) splitName(name string) string {
 		p.Name = name
 	}
 
-	//p.Name = name
 	p.Type = Adult
 	return ""
 }
