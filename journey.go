@@ -64,14 +64,18 @@ type Journey struct {
 	RPH          int
 	FlightNumber string `json:"flightNumber"`
 	CabinClass   string `json:"cabinClass"`
-	DepartDate   string `json:"departDate"`
-	DepartTime   string `json:"departTime"`
-	ArrDate      string `json:"arrDate"`
-	ArrTime      string `json:"arrTime"`
-	DepartCode   string `json:"departCode"`
-	ArrCode      string `json:"arrCode"`
 	Terminal     string `json:"terminal"`
 	innerDptDate time.Time
+	Arrival      *ArrDep
+	Dep          *ArrDep
+}
+
+type ArrDep struct {
+	AircaftScheduledDateTime time.Time `json:"aircraftScheduledDateTime"`
+	BoardingGateID           string    `json:"boardingGateID"`
+	IATA_LocationCode        string    `json:"iataLocationCode"`
+	StationName              string    `json:"stationName"`
+	TerminalName             string    `json:"terminalName"`
 }
 
 func (jl *JourneyLine) newJourney(line string) *Journey {
@@ -79,16 +83,19 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 
 	matche := jl.Regex.FindAllStringSubmatch(line, -1)[0]
 
-	j := &Journey{}
+	j := &Journey{
+		Arrival: &ArrDep{},
+		Dep:     &ArrDep{},
+	}
 	j.FlightNumber = matche[1]
 	j.CabinClass = matche[2]
 	j.innerDptDate = j.formatDate(matche[3])
-	j.DepartDate = j.innerDptDate.Format("2006-01-02")
-	j.DepartCode = matche[8][:3]
-	j.ArrCode = matche[8][3:]
-	j.DepartTime = matche[10]
-	j.ArrTime = j.formatTime(matche[11])
 	j.Terminal = matche[14]
+	j.Dep.IATA_LocationCode = matche[8][:3]
+	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(matche[3], matche[10])
+	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(matche[3], matche[11])
+	j.Arrival.TerminalName = matche[14]
+	j.Arrival.IATA_LocationCode = matche[8][3:]
 
 	return j
 }
@@ -103,17 +110,18 @@ func (j *Journey) formatDate(input string) time.Time {
 	if t.Month() < time.Now().Month() {
 		t = t.AddDate(1, 0, 0)
 	}
+
 	return t
 }
 
-func (j *Journey) formatTime(input string) string {
-	regex := regexp.MustCompile(`(\d{4})\+(\d+)`)
-	if !regex.MatchString(input) {
-		j.ArrDate = j.DepartDate
-		return input
+func (j *Journey) FormatArrDepTime(date, timeVal string) time.Time {
+	formatedDate := j.formatDate(date)
+	splitedTime := strings.Split(timeVal, "+")
+	houre, _ := strconv.Atoi(splitedTime[0][:2])
+	minute, _ := strconv.Atoi(splitedTime[0][2:])
+	if len(splitedTime) > 2 {
+		day, _ := strconv.Atoi(splitedTime[1])
+		formatedDate.AddDate(0, 0, day)
 	}
-	match := regex.FindAllStringSubmatch(input, -1)[0]
-	val, _ := strconv.Atoi(match[2])
-	j.ArrDate = j.innerDptDate.AddDate(0, 0, val).Format("2006-01-02")
-	return match[1]
+	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location())
 }

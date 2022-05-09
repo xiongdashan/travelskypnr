@@ -54,13 +54,13 @@ func (p *PriceLine) Add(pos int, line string) bool {
 	// 目前只从扫描区里获取姓名，不包含婴，如果价格中含P，为儿童价或婴儿价
 	if price.PersonRPH > 0 {
 		if p.isINF {
-			price.Type = Infant
+			price.PTC = Infant
 		} else {
-			price.Type = Child
+			price.PTC = Child
 		}
 
 	} else {
-		price.Type = Adult
+		price.PTC = Adult
 	}
 	p.PriceList = append(p.PriceList, price)
 	return true
@@ -75,13 +75,13 @@ func (p *PriceLine) bspPrice(priceItem []string) *Price {
 		//票面
 		scny := "SCNY"
 		if strings.HasPrefix(v, scny) {
-			price.ActualPrice = cast.ToFloat64(v[4:])
+			price.BaseAmount = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 代理费
 		c := "C"
 		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFees = cast.ToFloat64(v[1:])
+			price.BaseAmount = cast.ToFloat64(v[1:])
 			continue
 		}
 		// 税总和
@@ -107,13 +107,13 @@ func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 		//票面
 		scny := "RCNY"
 		if strings.HasPrefix(v, scny) {
-			price.ActualPrice = cast.ToFloat64(v[4:])
+			price.BaseAmount = cast.ToFloat64(v[4:])
 			continue
 		}
 		// 代理费
 		c := "C"
 		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFees = cast.ToFloat64(v[1:])
+			price.AgencyFee = cast.ToFloat64(v[1:])
 			continue
 		}
 		// 税总和
@@ -133,9 +133,9 @@ func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 
 type Price struct {
 	PersonRPH      int
-	ActualPrice    float64 `json:"amount"`
+	BaseAmount     float64 `json:"baseAmount"`
 	Tax            float64 `json:"tax"`
-	AgencyFees     float64 `json:"agencyFees"`
+	AgencyFee      float64 `json:"agencyFee"`
 	NumberOfPeople int     `json:"numberOfPeople"`
-	Type           string  `json:"type"`
+	PTC            string  `json:"ptc"`
 }

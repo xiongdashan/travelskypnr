@@ -111,7 +111,7 @@ func (a *Analysis) Output() *PNRInfo {
 		p.TktStr()
 
 		for _, pr := range priceLn.PriceList {
-			if p.PTC == pr.Type {
+			if p.PTC == pr.PTC {
 				pr.NumberOfPeople++
 			}
 		}
