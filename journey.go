@@ -66,8 +66,8 @@ type Journey struct {
 	CabinClass   string `json:"cabinClass"`
 	Terminal     string `json:"terminal"`
 	innerDptDate time.Time
-	Arrival      *ArrDep
-	Dep          *ArrDep
+	Arrival      *ArrDep `json:"arrival"`
+	Dep          *ArrDep `json:"dep"`
 }
 
 type ArrDep struct {
@@ -119,7 +119,7 @@ func (j *Journey) FormatArrDepTime(date, timeVal string) time.Time {
 	splitedTime := strings.Split(timeVal, "+")
 	houre, _ := strconv.Atoi(splitedTime[0][:2])
 	minute, _ := strconv.Atoi(splitedTime[0][2:])
-	if len(splitedTime) > 2 {
+	if len(splitedTime) >= 2 {
 		day, _ := strconv.Atoi(splitedTime[1])
 		formatedDate.AddDate(0, 0, day)
 	}
