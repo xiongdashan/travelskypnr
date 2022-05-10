@@ -1,4 +1,4 @@
-module github.com/xiongdashan/travelskypnr
+module github.com/xiongdashan/travelskypnr/v2
 
 go 1.18
 
