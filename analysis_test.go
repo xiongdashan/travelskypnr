@@ -1,11 +1,13 @@
 package travelskypnr
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestOutput(t *testing.T) {
 	pnrText := ` **ELECTRONIC TICKET PNR**
  1.侯XX KQ7X31
- 2.  3U8948 N   MO14MAY  TNAKMG RR1   1050 1355+1          E      N1 
+ 2.  3U8948 N   MO14MAY  TNAKMG RR1   0050 1355+1          E      N1 
      -CA-PHLF63
  3.SHA/T SHA/T021-64000000/XXX XXX BUSINESS INFORMATION CONSULTING      CO.,LTD/BJ ABCDEFG 
  4.Tb
@@ -31,5 +33,16 @@ func TestOutput(t *testing.T) {
 
 	if outer == nil {
 		t.Error("Output is nil")
+		return
+
 	}
+
+	j := outer.Journey[0]
+	if j == nil || j.Arrival == nil {
+		t.Fail()
+		return
+	}
+	deptime := outer.Journey[0].Dep.AircaftScheduledDateTime
+	t.Log(deptime)
+
 }

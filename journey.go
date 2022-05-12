@@ -121,7 +121,7 @@ func (j *Journey) FormatArrDepTime(date, timeVal string) time.Time {
 	minute, _ := strconv.Atoi(splitedTime[0][2:])
 	if len(splitedTime) >= 2 {
 		day, _ := strconv.Atoi(splitedTime[1])
-		formatedDate.AddDate(0, 0, day)
+		formatedDate = formatedDate.AddDate(0, 0, day)
 	}
 	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location())
 }
