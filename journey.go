@@ -71,7 +71,7 @@ type Journey struct {
 }
 
 type ArrDep struct {
-	AircaftScheduledDateTime time.Time `json:"aircraftScheduledDateTime"`
+	AircaftScheduledDateTime string `json:"aircraftScheduledDateTime"`
 	BoardingGateID           string    `json:"boardingGateID"`
 	IATA_LocationCode        string    `json:"iataLocationCode"`
 	StationName              string    `json:"stationName"`
@@ -114,7 +114,7 @@ func (j *Journey) formatDate(input string) time.Time {
 	return t
 }
 
-func (j *Journey) FormatArrDepTime(date, timeVal string) time.Time {
+func (j *Journey) FormatArrDepTime(date, timeVal string) string {
 	formatedDate := j.formatDate(date)
 	splitedTime := strings.Split(timeVal, "+")
 	houre, _ := strconv.Atoi(splitedTime[0][:2])
@@ -123,5 +123,5 @@ func (j *Journey) FormatArrDepTime(date, timeVal string) time.Time {
 		day, _ := strconv.Atoi(splitedTime[1])
 		formatedDate = formatedDate.AddDate(0, 0, day)
 	}
-	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location())
+	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location()).Format("2006-01-02 15:04:05")
 }

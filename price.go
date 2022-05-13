@@ -81,7 +81,7 @@ func (p *PriceLine) bspPrice(priceItem []string) *Price {
 		// 代理费
 		c := "C"
 		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.BaseAmount = cast.ToFloat64(v[1:])
+			price.AgencyFee = cast.ToFloat64(v[1:])
 			continue
 		}
 		// 税总和
