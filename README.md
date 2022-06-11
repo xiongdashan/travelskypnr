@@ -1,6 +1,9 @@
 中航信GDS订座PNR文本解析
 ===========
 
+``` go
+go get -u -v github.com/xiongdashan/travelskypnr/v2
+```
 
 ## 更新
 - 2022-05-09 因为有项目使用，回来了...

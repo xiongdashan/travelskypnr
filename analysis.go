@@ -20,12 +20,13 @@ func NewAnalysis(txt string) *Analysis {
 }
 
 type PNRInfo struct {
-	Code        string          `json:"code"`
-	IsUATP      bool            `jons:"isUATP"`
-	Journey     []*Journey      `json:"journey"`
-	Person      []*Person       `json:"person"`
-	Price       []*Price        `json:"price"`
-	TicketNumer []*TicketNumber `json:"tktNumber"`
+	Code         string          `json:"code"`
+	IsUATP       bool            `jons:"isUATP"`
+	Journey      []*Journey      `json:"journey"`
+	Person       []*Person       `json:"person"`
+	Price        []*Price        `json:"price"`
+	TicketNumer  []*TicketNumber `json:"tktNumber"`
+	OfficeNumber string          `json:"officeNumber"`
 }
 
 const (
@@ -120,5 +121,14 @@ func (a *Analysis) Output() *PNRInfo {
 
 	rev.Price = priceLn.PriceList
 	rev.Journey = j.JourneyList
+	rev.OfficeNumber = a.getOfficeNum(lines)
 	return rev
+}
+
+func (a *Analysis) getOfficeNum(lines []string) string {
+	tail := strings.TrimSpace(lines[len(lines)-1])
+	if match, _ := regexp.MatchString(`[A-Z0-9]{6}`, tail); match {
+		return tail
+	}
+	return ""
 }
