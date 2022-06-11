@@ -68,6 +68,7 @@ func (p *PersonLine) Add(pos int, line string) bool {
 	p.Dict[key] = person
 	if pnrNum != "" {
 		p.PnrCode = pnrNum
+		p.End()
 	}
 
 	fmt.Println(person.Name)
