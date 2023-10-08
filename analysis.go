@@ -27,6 +27,7 @@ type PNRInfo struct {
 	Price        []*Price        `json:"price"`
 	TicketNumer  []*TicketNumber `json:"tktNumber"`
 	OfficeNumber string          `json:"officeNumber"`
+	Expired      string          `json:"expired"`
 }
 
 const (
@@ -74,14 +75,6 @@ func (a *Analysis) Output() *PNRInfo {
 		//价格
 		priceLn.Add(i, l)
 	}
-
-	// rev := &PNRInfo{
-	// 	Code:        pl.PnrCode,
-	// 	Journey:     j.Data(),
-	// 	Person:      pl.Data(),
-	// 	Price:       priceLn.Data(),
-	// 	TicketNumer: tl.Data(),
-	// }
 
 	rev := &PNRInfo{
 		Code:   pl.PnrCode,

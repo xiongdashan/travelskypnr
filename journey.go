@@ -123,5 +123,5 @@ func (j *Journey) FormatArrDepTime(date, timeVal string) string {
 		day, _ := strconv.Atoi(splitedTime[1])
 		formatedDate = formatedDate.AddDate(0, 0, day)
 	}
-	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location()).Format("2006-01-02 15:04:05")
+	return time.Date(formatedDate.Year(), formatedDate.Month(), formatedDate.Day(), houre, minute, 0, 0, formatedDate.Location()).Format("2006-01-02 15:04")
 }

@@ -27,7 +27,6 @@ func (p *PersonLine) Data() (rev []*Person) {
 }
 
 func (p *PersonLine) IsMatch(line string) bool {
-
 	return !p.isPass
 }
 
@@ -41,7 +40,6 @@ const patternINF = `XN\/IN\/(.*[^\/]+)\/(.*[^\()]+)\(([A-Z0-9]{5})\)\/P(\d+)`
 
 // 扫描区姓名
 func (p *PersonLine) Add(pos int, line string) bool {
-
 	if !p.IsMatch(line) {
 		// 如果扫描区已过，尝试匹配SSR信息
 		if p.AddSSR(line) {
@@ -51,7 +49,6 @@ func (p *PersonLine) Add(pos int, line string) bool {
 		if p.ctcm(line) {
 			return true
 		}
-
 		// 匹配婴儿...
 		if match, _ := regexp.MatchString(patternINF, line); match {
 			p.setInft(line)
@@ -249,7 +246,6 @@ func (p *Person) splitName(name string) string {
 	} else {
 		p.Name = name
 	}
-
 	p.PTC = Adult
 	return ""
 }
