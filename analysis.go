@@ -115,6 +115,7 @@ func (a *Analysis) Output() *PNRInfo {
 	rev.Price = priceLn.PriceList
 	rev.Journey = j.JourneyList
 	rev.OfficeNumber = a.getOfficeNum(lines)
+	rev.TicketNumer = tl.TicketNumberList
 	return rev
 }
 
