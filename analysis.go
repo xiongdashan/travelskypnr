@@ -121,7 +121,7 @@ func (a *Analysis) Output() *PNRInfo {
 
 func (a *Analysis) getOfficeNum(lines []string) string {
 	tail := strings.TrimSpace(lines[len(lines)-1])
-	if match, _ := regexp.MatchString(`[A-Z0-9]{6}`, tail); match {
+	if match, _ := regexp.MatchString(`$[A-Z0-9]{6}^`, tail); match {
 		return tail
 	}
 	return ""
