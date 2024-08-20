@@ -11,6 +11,7 @@ type PriceLine struct {
 	PriceList []*Price
 	IsUATP    bool
 	isINF     bool
+	matches   map[string]string
 }
 
 func NewPriceLine() *PriceLine {
@@ -43,6 +44,8 @@ func (p *PriceLine) Add(pos int, line string) bool {
 		p.isINF = true
 	}
 
+	p.matcheLine(line)
+
 	var price *Price
 
 	if p.IsUATP {
@@ -66,68 +69,58 @@ func (p *PriceLine) Add(pos int, line string) bool {
 	return true
 }
 
-//BSP 支付运价
+// BSP 支付运价
 func (p *PriceLine) bspPrice(priceItem []string) *Price {
 
 	price := &Price{}
-	for _, v := range priceItem {
-		v = strings.TrimSpace(v)
-		//票面
-		scny := "SCNY"
-		if strings.HasPrefix(v, scny) {
-			price.BaseAmount = cast.ToFloat64(v[4:])
-			continue
-		}
-		// 代理费
-		c := "C"
-		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFee = cast.ToFloat64(v[1:])
-			continue
-		}
-		// 税总和
-		xcny := "XCNY"
-		if strings.HasPrefix(v, xcny) {
-			price.Tax = cast.ToFloat64(v[4:])
-			continue
-		}
-		// 乘客序号
-		p := "P"
-		if len(v) > 1 && strings.HasPrefix(v, p) {
-			price.PersonRPH = cast.ToInt(v[1:])
+	price.BaseAmount = cast.ToFloat64(p.matches["SCNY"])
+	price.Tax = cast.ToFloat64(p.matches["XCNY"])
+	price.AgencyFee = cast.ToFloat64(p.matches["C"])
+	price.YQ = cast.ToFloat64(p.matches["TCNY"])
+	price.ToRefPsg(p.matches["P"])
+	return price
+}
+
+// 各种正则表达式
+var expressions = map[string]*regexp.Regexp{
+	"FCNY": regexp.MustCompile(`FCNY(\d+\.\d+)`),
+	"RCNY": regexp.MustCompile(`RCNY(\d+\.\d+)`),
+	"SCNY": regexp.MustCompile(`SCNY(\d+\.\d+)`),
+	"XCNY": regexp.MustCompile(`XCNY(\d+\.\d+)`),
+	"C":    regexp.MustCompile(`C(\d+\.\d+)`),
+	"TCNY": regexp.MustCompile(`TCNY(\d+\.\d+)(?:CN|YQ)?`),
+	"ACNY": regexp.MustCompile(`ACNY(\d+\.\d+)`),
+	"P":    regexp.MustCompile(`P(\d+(?:/\d+)*)`),
+}
+
+func (p *PriceLine) matcheLine(l string) {
+	p.matches = make(map[string]string)
+	for k, v := range expressions {
+		match := v.FindStringSubmatch(l)
+		if len(match) > 1 {
+			p.matches[k] = match[1]
 		}
 	}
-	return price
+}
+
+var UatpExpressions = map[string]*regexp.Regexp{
+	"RCNY": regexp.MustCompile(`RCNY(\d+\.\d+)`),
+	"SCNY": regexp.MustCompile(`SCNY(\d+\.\d+)`),
+	"BCNY": regexp.MustCompile(`XCNY(\d+\.\d+)`),
+	"C":    regexp.MustCompile(`C(\d+\.\d+)`),
+	"TCNY": regexp.MustCompile(`TCNY(\d+\.\d+)(?:CN|YQ)?`),
+	"ACNY": regexp.MustCompile(`ACNY(\d+\.\d+)`),
+	"P":    regexp.MustCompile(`P(\d+(?:/\d+)*)`),
 }
 
 // UATP支付价格计算
 func (p *PriceLine) uatpPrice(priceItem []string) *Price {
 	price := &Price{}
-	for _, v := range priceItem {
-		v = strings.TrimSpace(v)
-		//票面
-		scny := "RCNY"
-		if strings.HasPrefix(v, scny) {
-			price.BaseAmount = cast.ToFloat64(v[4:])
-			continue
-		}
-		// 代理费
-		c := "C"
-		if len(v) > 2 && strings.HasPrefix(v, c) {
-			price.AgencyFee = cast.ToFloat64(v[1:])
-			continue
-		}
-		// 税总和
-		xcny := "BCNY"
-		if strings.HasPrefix(v, xcny) {
-			price.Tax = cast.ToFloat64(v[4:])
-			continue
-		}
-		// 乘客序号
-		p := "P"
-		if len(v) > 1 && strings.HasPrefix(v, p) {
-			price.PersonRPH = cast.ToInt(v[1:])
-		}
-	}
+	price.BaseAmount = cast.ToFloat64(p.matches["RCNY"])
+	price.Tax = cast.ToFloat64(p.matches["BCNY"])
+	price.AgencyFee = cast.ToFloat64(p.matches["C"])
+	price.YQ = cast.ToFloat64(p.matches["TCNY"])
+	price.ToRefPsg(p.matches["P"])
 	return price
 }
 
@@ -135,7 +128,31 @@ type Price struct {
 	PersonRPH      int
 	BaseAmount     float64 `json:"baseAmount"`
 	Tax            float64 `json:"tax"`
+	YQ             float64 `json:"yq"`
 	AgencyFee      float64 `json:"agencyFee"`
 	NumberOfPeople int     `json:"numberOfPeople"`
 	PTC            string  `json:"ptc"`
+	RefPsg         []int   `json:"refPsg"`
+}
+
+func (p *Price) ToRefPsg(matchedP string) {
+
+	ptc := strings.Split(matchedP, "/")
+
+	for _, v := range ptc {
+		if v == "" {
+			continue
+		}
+		p.NumberOfPeople++
+		p.RefPsg = append(p.RefPsg, cast.ToInt(v))
+	}
+}
+
+func (p *Price) include(psgPtc int) bool {
+	for _, v := range p.RefPsg {
+		if v == psgPtc {
+			return true
+		}
+	}
+	return false
 }

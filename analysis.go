@@ -105,9 +105,12 @@ func (a *Analysis) Output() *PNRInfo {
 		p.TktStr()
 
 		for _, pr := range priceLn.PriceList {
-			if p.PTC == pr.PTC {
-				pr.NumberOfPeople++
+			if pr.NumberOfPeople > 0 && pr.include(p.RPH) {
+				pr.PTC = p.PTC
+				continue
 			}
+			pr.PTC = Adult
+
 		}
 		rev.Person = append(rev.Person, p)
 	}
