@@ -103,16 +103,16 @@ func (a *Analysis) Output() *PNRInfo {
 		}
 
 		p.TktStr()
+		rev.Person = append(rev.Person, p)
 
 		for _, pr := range priceLn.PriceList {
 			if pr.NumberOfPeople > 0 && pr.include(p.RPH) {
 				pr.PTC = p.PTC
-				continue
+			} else {
+				pr.PTC = Adult
 			}
-			pr.PTC = Adult
-
+			pr.NumberOfPeople = a.kindOfPsg(pr.PTC, rev.Person)
 		}
-		rev.Person = append(rev.Person, p)
 	}
 
 	rev.Price = priceLn.PriceList
@@ -128,4 +128,14 @@ func (a *Analysis) getOfficeNum(lines []string) string {
 		return tail
 	}
 	return ""
+}
+
+func (a *Analysis) kindOfPsg(kind string, psgs []*Person) int {
+	rev := 0
+	for _, p := range psgs {
+		if p.PTC == kind {
+			rev++
+		}
+	}
+	return rev
 }

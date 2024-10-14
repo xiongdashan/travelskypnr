@@ -1,13 +1,13 @@
 package travelskypnr
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func readPnrfile(filename string) string {
 	fullPath := "./data/" + filename + ".txt"
-	buf, _ := ioutil.ReadFile(fullPath)
+	buf, _ := os.ReadFile(fullPath)
 	return string(buf)
 }
 
@@ -31,4 +31,24 @@ func TestOutput(t *testing.T) {
 	deptime := outer.Journey[0].Dep.AircaftScheduledDateTime
 	t.Log(deptime)
 
+}
+
+func TestPsgZero(t *testing.T) {
+	txt := readPnrfile("psg_zero_err")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Price) == 0 {
+		t.Error("Price is nil")
+		return
+	}
+	for _, p := range outer.Price {
+		if p.NumberOfPeople == 0 {
+			t.Error("psg is zero")
+		}
+		t.Log(p.NumberOfPeople)
+	}
 }

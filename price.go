@@ -44,7 +44,7 @@ func (p *PriceLine) Add(pos int, line string) bool {
 		p.isINF = true
 	}
 
-	p.matcheLine(line)
+	p.matchLine(line)
 
 	var price *Price
 
@@ -93,7 +93,7 @@ var expressions = map[string]*regexp.Regexp{
 	"P":    regexp.MustCompile(`P(\d+(?:/\d+)*)`),
 }
 
-func (p *PriceLine) matcheLine(l string) {
+func (p *PriceLine) matchLine(l string) {
 	p.matches = make(map[string]string)
 	for k, v := range expressions {
 		match := v.FindStringSubmatch(l)
@@ -101,16 +101,6 @@ func (p *PriceLine) matcheLine(l string) {
 			p.matches[k] = match[1]
 		}
 	}
-}
-
-var UatpExpressions = map[string]*regexp.Regexp{
-	"RCNY": regexp.MustCompile(`RCNY(\d+\.\d+)`),
-	"SCNY": regexp.MustCompile(`SCNY(\d+\.\d+)`),
-	"BCNY": regexp.MustCompile(`XCNY(\d+\.\d+)`),
-	"C":    regexp.MustCompile(`C(\d+\.\d+)`),
-	"TCNY": regexp.MustCompile(`TCNY(\d+\.\d+)(?:CN|YQ)?`),
-	"ACNY": regexp.MustCompile(`ACNY(\d+\.\d+)`),
-	"P":    regexp.MustCompile(`P(\d+(?:/\d+)*)`),
 }
 
 // UATP支付价格计算
@@ -145,6 +135,7 @@ func (p *Price) ToRefPsg(matchedP string) {
 		}
 		p.NumberOfPeople++
 		p.RefPsg = append(p.RefPsg, cast.ToInt(v))
+
 	}
 }
 
