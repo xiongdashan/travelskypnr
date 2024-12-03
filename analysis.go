@@ -59,7 +59,7 @@ func (a *Analysis) Output() *PNRInfo {
 
 		l = strings.Replace(l, "\n", " ", -1)
 
-		if j.Add(i, l) {
+		if _, ok := j.Add(i, l); ok {
 			pl.End()
 		}
 		// 扫描区姓名

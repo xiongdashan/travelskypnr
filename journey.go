@@ -35,12 +35,12 @@ func (j *JourneyLine) IsMatch(line string) bool {
 	return j.Regex.MatchString(strings.TrimSpace(line))
 }
 
-func (j *JourneyLine) Add(pos int, line string) bool {
+func (j *JourneyLine) Add(pos int, line string) (*Journey, bool) {
 
 	line = strings.TrimSpace(line)
 
 	if !j.IsMatch(line) {
-		return false
+		return nil, false
 	}
 
 	var jny *Journey
@@ -57,7 +57,7 @@ func (j *JourneyLine) Add(pos int, line string) bool {
 
 	jny.RPH = len(j.JourneyList) + 1
 	j.JourneyList = append(j.JourneyList, jny)
-	return true
+	return jny, true
 }
 
 type Journey struct {
