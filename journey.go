@@ -64,7 +64,6 @@ type Journey struct {
 	RPH          int
 	FlightNumber string `json:"flightNumber"`
 	CabinClass   string `json:"cabinClass"`
-	Terminal     string `json:"terminal"`
 	innerDptDate time.Time
 	Arrival      *ArrDep `json:"arrival"`
 	Dep          *ArrDep `json:"dep"`
@@ -78,32 +77,86 @@ type ArrDep struct {
 	BoardingGateID           string `json:"boardingGateID"`
 	IATA_LocationCode        string `json:"iataLocationCode"`
 	StationName              string `json:"stationName"`
-	TerminalName             string `json:"terminalName"`
 }
+
+
+
+// 新版解析
+
+/***************
+
+
+[0] =
+"CZ8233"
+[1] =
+"Z"
+[2] =
+"WE14AUG"
+[3] =
+"CANTFU"
+[4] =
+"RR4"
+[5] =
+"1420"
+[6] =
+"1640"
+[7] =
+"E"
+[8] =
+"T2T2"
+[9] =
+"-CA-NT0ER3"
+*****************/
 
 func (jl *JourneyLine) newJourney(line string) *Journey {
 	line = strings.TrimSpace(line)
 
-	matche := jl.Regex.FindAllStringSubmatch(line, -1)[0]
+	fields := strings.Fields(line)
 
 	j := &Journey{
 		Arrival: &ArrDep{},
 		Dep:     &ArrDep{},
 	}
-	j.FlightNumber = matche[1]
-	j.CabinClass = matche[2]
-	j.innerDptDate = j.formatDate(matche[3])
-	j.Terminal = matche[14]
-	j.Dep.IATA_LocationCode = matche[8][:3]
-	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(matche[3], matche[10])
-	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(matche[3], matche[11])
-	j.Arrival.TerminalName = matche[14]
-	j.Arrival.IATA_LocationCode = matche[8][3:]
-	j.DepDate = matche[3]
-	j.DepTime = matche[10]
-	j.ArrTime = matche[11]
+	j.FlightNumber = fields[0][2:]
+	j.CabinClass = fields[1]
+	j.innerDptDate = j.formatDate(fields[2])
+	j.Dep.IATA_LocationCode = fields[3][:3]
+	j.Arrival.IATA_LocationCode = fields[3][3:]
+	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[5])
+	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[6])
+	j.DepDate = fields[3]
+	j.DepTime = fields[5]
+	j.ArrTime = fields[6]
+	jl.formatTerminal(fields, j)
 	return j
 }
+
+func (j *JourneyLine) formatTerminal(fields []string, jny *Journey) {
+	if len(fields) < 8 {
+		return
+	}
+	t := fields[8]
+	if strings.HasPrefix(t, "--") {
+		jny.Dep.StationName = strings.TrimPrefix(t, "--")
+		return
+	}
+	if strings.HasSuffix(t, "--") {
+		jny.Arrival.StationName = strings.TrimSuffix(t, "--")
+		return
+	}
+	reg := regexp.MustCompile(`T(\d{1,2})T(\d{1,2})`)
+	if reg.MatchString(t) {
+		matche := reg.FindStringSubmatch(t)
+		jny.Dep.StationName = fmt.Sprintf("T%s", matche[1])
+		jny.Arrival.BoardingGateID = fmt.Sprintf("T%s", matche[2])
+		return
+	}
+	if len(fields) >= 9 {
+		jny.Dep.StationName = fields[8]
+		jny.Arrival.StationName = fields[9]
+	}
+}
+
 
 func (j *Journey) formatDate(input string) time.Time {
 	val := fmt.Sprintf("%s%d", input[2:], time.Now().Year())
