@@ -35,7 +35,7 @@ func TestNewJourneyWithNoTerminal(t *testing.T) {
 	line := "TK2126 Y1 TU10DEC ISTESB HK1 0800 0910 SEAME"
 	jl := &JourneyLine{}
 	j := jl.newJourney(line)
-	if j.FlightNumber != "2126" {
+	if j.FlightNumber != "TK2126" {
 		t.Errorf("FlightNumber is not TK2126")
 	}
 }

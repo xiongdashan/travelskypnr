@@ -117,7 +117,7 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 		Arrival: &ArrDep{},
 		Dep:     &ArrDep{},
 	}
-	j.FlightNumber = fields[0][2:]
+	j.FlightNumber = fields[0]
 	j.CabinClass = fields[1]
 	j.innerDptDate = j.formatDate(fields[2])
 	j.Dep.IATA_LocationCode = fields[3][:3]
