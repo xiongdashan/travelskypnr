@@ -69,7 +69,7 @@ type Journey struct {
 	Arrival      *ArrDep `json:"arrival"`
 	Dep          *ArrDep `json:"dep"`
 	ArrTime      string   `json:"arrTime"`
-	ArrDate      string   `json:"arrDate"`
+	DepDate      string   `json:"depDate"`
 	DepTime      string   `json:"depTime"`
 }
 
@@ -99,9 +99,9 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(matche[3], matche[11])
 	j.Arrival.TerminalName = matche[14]
 	j.Arrival.IATA_LocationCode = matche[8][3:]
-	j.ArrDate = matche[3]
-	j.ArrTime = matche[11]
+	j.DepDate = matche[3]
 	j.DepTime = matche[10]
+	j.ArrTime = matche[11]
 	return j
 }
 
