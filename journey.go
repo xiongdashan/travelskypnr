@@ -132,7 +132,7 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 }
 
 func (j *JourneyLine) formatTerminal(fields []string, jny *Journey) {
-	if len(fields) < 8 {
+	if len(fields) < 9 {
 		return
 	}
 	t := fields[8]
@@ -151,7 +151,7 @@ func (j *JourneyLine) formatTerminal(fields []string, jny *Journey) {
 		jny.Arrival.BoardingGateID = fmt.Sprintf("T%s", matche[2])
 		return
 	}
-	if len(fields) >= 9 {
+	if len(fields) >= 10 {
 		jny.Dep.StationName = fields[8]
 		jny.Arrival.StationName = fields[9]
 	}
