@@ -124,7 +124,7 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 	j.Arrival.IATA_LocationCode = fields[3][3:]
 	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[5])
 	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[6])
-	j.DepDate = fields[3]
+	j.DepDate = fields[2]
 	j.DepTime = fields[5]
 	j.ArrTime = fields[6]
 	jl.formatTerminal(fields, j)
