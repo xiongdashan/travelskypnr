@@ -52,3 +52,23 @@ func TestPsgZero(t *testing.T) {
 		t.Log(p.NumberOfPeople)
 	}
 }
+
+func TestJourneyLost(t *testing.T) {
+	txt := readPnrfile("journey_lost")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Journey) != 4 {
+		t.Log(len(outer.Journey))
+		t.Error("Journey is not 4")
+		return
+	}
+	if len(outer.Person) != 2 {
+		t.Log(len(outer.Price))
+		t.Error("Price is not 2")
+		return
+	}
+}

@@ -40,3 +40,9 @@ func TestNewJourneyWithNoTerminal(t *testing.T) {
 	}
 }
 
+func TestFormatDate(t *testing.T) {
+	line := "AF111  B1  SA01FEB  PVGCDG HK1   2205 0550+1    SEAME  12E"
+	jl := &JourneyLine{}
+	j := jl.newJourney(line)
+	fmt.Println(j)
+}

@@ -54,6 +54,10 @@ func (p *PriceLine) Add(pos int, line string) bool {
 		price = p.bspPrice(pItems)
 	}
 
+	if price.BaseAmount == 0 {
+		return false
+	}
+
 	// 目前只从扫描区里获取姓名，不包含婴，如果价格中含P，为儿童价或婴儿价
 	if price.PersonRPH > 0 {
 		if p.isINF {
