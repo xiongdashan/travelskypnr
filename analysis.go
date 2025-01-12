@@ -105,22 +105,18 @@ func (a *Analysis) Output() *PNRInfo {
 		p.TktStr()
 		rev.Person = append(rev.Person, p)
 
-		for _, pr := range priceLn.PriceList {
-			if pr.NumberOfPeople > 0 && pr.include(p.RPH) {
-				pr.PTC = p.PTC
-			} else {
-				pr.PTC = Adult
-			}
-			pr.NumberOfPeople = a.kindOfPsg(pr.PTC, rev.Person)
-		}
 	}
 
 	rev.Price = priceLn.PriceList
 	rev.Journey = j.JourneyList
 	rev.OfficeNumber = a.getOfficeNum(lines)
 	rev.TicketNumer = tl.TicketNumberList
+	rev.Price = a.setPrice(priceLn, rev)
+
 	return rev
 }
+
+
 
 func (a *Analysis) getOfficeNum(lines []string) string {
 	tail := strings.TrimSpace(lines[len(lines)-1])
@@ -130,12 +126,32 @@ func (a *Analysis) getOfficeNum(lines []string) string {
 	return ""
 }
 
-func (a *Analysis) kindOfPsg(kind string, psgs []*Person) int {
-	rev := 0
-	for _, p := range psgs {
-		if p.PTC == kind {
-			rev++
+
+
+//重新设置返回价格，因为FN是多人价格，返回时只需要返回每种乘客类型的价格即可
+
+func (a *Analysis) setPrice(priceLn *PriceLine, rev *PNRInfo) []*Price {
+
+	priceMap := make(map[string]*Price)
+
+	for _, p := range rev.Person {
+		for _, pr := range priceLn.PriceList {
+			if pr.include(p.RPH) {
+				if _, ok := priceMap[p.PTC]; !ok {
+					priceMap[p.PTC] = pr
+					priceMap[p.PTC].NumberOfPeople = 1;
+					priceMap[p.PTC].PTC = p.PTC
+				} else {
+					priceMap[p.PTC].NumberOfPeople++
+				}
+			}
 		}
 	}
-	return rev
+
+	rev.Price = make([]*Price, 0)
+	for _, v := range priceMap {
+		rev.Price = append(rev.Price, v)
+	}
+
+	return rev.Price
 }

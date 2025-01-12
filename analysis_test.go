@@ -67,7 +67,22 @@ func TestJourneyLost(t *testing.T) {
 		return
 	}
 	if len(outer.Person) != 2 {
-		t.Log(len(outer.Price))
+		t.Log(len(outer.Person))
+		t.Error("Person is not 2")
+		return
+	}
+}
+
+func TestPsgCHD(t *testing.T) {
+	txt := readPnrfile("psg_chd")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+
+	if len(outer.Price) != 2 {
 		t.Error("Price is not 2")
 		return
 	}
