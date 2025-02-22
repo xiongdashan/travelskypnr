@@ -151,3 +151,7 @@ func (p *Price) include(psgPtc int) bool {
 	}
 	return false
 }
+
+func (p *Price) includePTC(ptc string) bool {
+	return p.PTC == ptc
+}

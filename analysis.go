@@ -136,7 +136,7 @@ func (a *Analysis) setPrice(priceLn *PriceLine, rev *PNRInfo) []*Price {
 
 	for _, p := range rev.Person {
 		for _, pr := range priceLn.PriceList {
-			if pr.include(p.RPH) {
+			if pr.include(p.RPH) || pr.includePTC(p.PTC) {
 				if _, ok := priceMap[p.PTC]; !ok {
 					priceMap[p.PTC] = pr
 					priceMap[p.PTC].NumberOfPeople = 1;

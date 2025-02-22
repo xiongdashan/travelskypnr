@@ -87,3 +87,16 @@ func TestPsgCHD(t *testing.T) {
 		return
 	}
 }
+
+func TestNoPrice(t *testing.T) {
+	txt := readPnrfile("no_price")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Price) == 0 {
+		t.Error("Price is not 0")
+	}
+}

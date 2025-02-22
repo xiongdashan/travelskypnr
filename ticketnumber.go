@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/cast"
 )
 
 type TicketNumberLine struct {
@@ -116,7 +118,10 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 
 func (t *TicketNumberLine) rphToi(rph string) int {
 	rph = strings.TrimSpace(rph)
-	rev, _ := strconv.Atoi(strings.Replace(rph, "P", "", -1))
+	if len(rph) < 2 {
+		return cast.ToInt(rph)
+	}
+	rev := cast.ToInt(string(rph[1]))
 	return rev
 }
 
