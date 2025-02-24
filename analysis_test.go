@@ -100,3 +100,17 @@ func TestNoPrice(t *testing.T) {
 		t.Error("Price is not 0")
 	}
 }
+
+func TestSimple(t *testing.T) {
+	txt := readPnrfile("simple")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Journey) != 1 {
+		t.Error("Journey is not 2")
+		return
+	}
+}

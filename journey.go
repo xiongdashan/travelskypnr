@@ -18,7 +18,7 @@ var arnk = "ARNK"
 
 func NewJourneyLine() *JourneyLine {
 	j := &JourneyLine{}
-	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+(([A-Z]{2})(\d{2})([A-Z]{3}))(\s+|\d{2})([A-Z]{6})\s?([A-Z0-9]{2,3})\s+(\d{4})\s+((\d{4})(\+\d{1})?)\s+([A-Z]{1})`)
+	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+(([A-Z]{2})(\d{2})([A-Z]{3}))(\s+|\d{2})([A-Z]{6})\s?([A-Z0-9]{2,3})\s+(\d{4})\s+((\d{4})(\+\d{1})?)`)
 	return j
 }
 
