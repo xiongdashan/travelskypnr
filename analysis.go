@@ -21,6 +21,7 @@ func NewAnalysis(txt string) *Analysis {
 
 type PNRInfo struct {
 	Code         string          `json:"code"`
+	BigCode      string          `json:"bigCode"`
 	IsUATP       bool            `jons:"isUATP"`
 	Journey      []*Journey      `json:"journey"`
 	Person       []*Person       `json:"person"`
@@ -112,7 +113,7 @@ func (a *Analysis) Output() *PNRInfo {
 	rev.OfficeNumber = a.getOfficeNum(lines)
 	rev.TicketNumer = tl.TicketNumberList
 	rev.Price = a.setPrice(priceLn, rev)
-
+	rev.BigCode = GetBigCode(pnr)
 	return rev
 }
 

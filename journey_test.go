@@ -46,3 +46,11 @@ func TestFormatDate(t *testing.T) {
 	j := jl.newJourney(line)
 	fmt.Println(j)
 }
+
+func TestFormatArrDepTime(t *testing.T) {
+	line := "CA1230 L   MO10MAR25XIYPEK HK1   1930 2150          E T2T3"
+	jl := &JourneyLine{}
+	j := jl.newJourney(line)
+	fmt.Println(j)
+}
+

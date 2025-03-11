@@ -114,3 +114,35 @@ func TestSimple(t *testing.T) {
 		return
 	}
 }
+
+func TestPsgNoEqu(t *testing.T) {
+	txt := readPnrfile("psg_no")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Person) != 7 {
+		t.Error("Person is not 7")
+		return
+	}
+}
+
+func TestBigPnr(t *testing.T) {
+	txt := readPnrfile("bigpnr")
+	al := NewAnalysis(txt)
+	outer := al.Output()
+	if outer == nil {
+		t.Error("Output is nil")
+		return
+	}
+	if len(outer.Journey) != 1 {
+		t.Error("Journey is not 1")
+		return
+	}
+	if outer.BigCode != "NBMLJF" {
+		t.Error("BigCode is not CA/NBMLJF")
+		return
+	}
+}

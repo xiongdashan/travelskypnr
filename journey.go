@@ -18,7 +18,7 @@ var arnk = "ARNK"
 
 func NewJourneyLine() *JourneyLine {
 	j := &JourneyLine{}
-	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+(([A-Z]{2})(\d{2})([A-Z]{3}))(\s+|\d{2})([A-Z]{6})\s?([A-Z0-9]{2,3})\s+(\d{4})\s+((\d{4})(\+\d{1})?)`)
+	j.Regex = regexp.MustCompile(`(\w+)\s+([A-Z0-9]{1,2})\s+[A-Z]{2}\d{2}[A-Z]{3}`)
 	return j
 }
 
@@ -70,6 +70,7 @@ type Journey struct {
 	ArrTime      string   `json:"arrTime"`
 	DepDate      string   `json:"depDate"`
 	DepTime      string   `json:"depTime"`
+	offset       int
 }
 
 type ArrDep struct {
@@ -120,16 +121,22 @@ func (jl *JourneyLine) newJourney(line string) *Journey {
 	j.FlightNumber = fields[0]
 	j.CabinClass = fields[1]
 	j.innerDptDate = j.formatDate(fields[2])
-	j.Dep.IATA_LocationCode = fields[3][:3]
-	j.Arrival.IATA_LocationCode = fields[3][3:]
-	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[5])
-	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[6])
+	if j.Dep.IATA_LocationCode == "" {
+		j.Dep.IATA_LocationCode = fields[3][:3]
+	}
+	if j.Arrival.IATA_LocationCode == "" {
+		j.Arrival.IATA_LocationCode = fields[3][3:]
+	}
+	j.Dep.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[5 - j.offset])
+	j.Arrival.AircaftScheduledDateTime = j.FormatArrDepTime(fields[2], fields[6 - j.offset])
 	j.DepDate = fields[2]
-	j.DepTime = fields[5]
-	j.ArrTime = fields[6]
+	j.DepTime = fields[5 - j.offset]
+	j.ArrTime = fields[6 - j.offset]
 	jl.formatTerminal(fields, j)
 	return j
 }
+
+
 
 func (j *JourneyLine) formatTerminal(fields []string, jny *Journey) {
 	if len(fields) < 9 {
@@ -159,6 +166,11 @@ func (j *JourneyLine) formatTerminal(fields []string, jny *Journey) {
 
 
 func (j *Journey) formatDate(input string) time.Time {
+   
+	if len(input) > 12 {
+		input = j.formatDateWithWeek(input)
+	}
+
 	val := fmt.Sprintf("%s%d", input[2:], time.Now().Year())
 	t, err := time.Parse("02Jan2006", val)
 	if err != nil {
@@ -172,8 +184,21 @@ func (j *Journey) formatDate(input string) time.Time {
 	return t
 }
 
+// 处理带星期的日期
+func (j *Journey) formatDateWithWeek(input string) string {
+	
+  //MO10MAR25XIYPEK
+  j.offset = 1
+  str := input[:7]	
+  j.Dep.IATA_LocationCode = input[9:12]
+  j.Arrival.IATA_LocationCode = input[12:]
+  return str
+}
+
+
+
 func (j *Journey) FormatArrDepTime(date, timeVal string) string {
-	formatedDate := j.formatDate(date)
+	formatedDate := j.innerDptDate
 	splitedTime := strings.Split(timeVal, "+")
 	houre, _ := strconv.Atoi(splitedTime[0][:2])
 	minute, _ := strconv.Atoi(splitedTime[0][2:])
