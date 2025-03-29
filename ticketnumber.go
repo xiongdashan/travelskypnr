@@ -13,6 +13,7 @@ type TicketNumberLine struct {
 	isTn             bool
 	ssrError         bool
 	ssr              int
+	TnNumList        []*TnNum
 }
 
 func NewTktLine() *TicketNumberLine {
@@ -45,20 +46,24 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	tkt := &TicketNumber{}
 
 	// TN/000-000000000/P1
-	if t.isTn && (t.ssrError || t.ssr == 0) {
+	if t.isTn && len(t.TicketNumberList) == 0 {
 		regex := regexp.MustCompile(`TN(\/IN)?\/([0-9\-]+)\/P(\d+)`)
 		if !regex.MatchString(line) {
 			return true
 		}
 		match := regex.FindAllStringSubmatch(line, -1)[0]
-		tkt.Number = match[2]
-		tkt.PersonRPH = t.rphToi(match[3])
+
+		tn := &TnNum{}
+		tn.Number = match[2]
+		tn.PersonRPH = t.rphToi(match[3])
 
 		//婴儿票
 		if match[1] != "" {
-			tkt.Type = Infant
+			tn.Type = Infant
 		}
 
+		t.TnNumList = append(t.TnNumList, tn)
+		return true
 		//return true
 
 	} else {
@@ -86,7 +91,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 		}
 
 		tkt.Airline = tktItmes[2]
-
+		tkt.DepArr = tktItmes[4]
 		suffix := line[idx[0][1]:]
 
 		rph := strings.Split(suffix, "/")
@@ -106,7 +111,7 @@ func (t *TicketNumberLine) Add(pos int, line string) bool {
 	tkt.Number = strings.TrimSpace(tkt.Number)
 
 	for _, v := range t.TicketNumberList {
-		if v.Number == tkt.Number {
+		if v.Number == tkt.Number && v.DepArr == tkt.DepArr && v.Airline == tkt.Airline {
 			return true
 		}
 	}
@@ -127,8 +132,15 @@ func (t *TicketNumberLine) rphToi(rph string) int {
 
 type TicketNumber struct {
 	Airline    string `json:"airLine"`
+	DepArr     string `json:"depArr"`
 	Number     string `json:"number"`
 	JourneyRPH int    `json:"journeyRPH"`
 	PersonRPH  int    `json:"personRPH"`
 	Type       string `json:"type"`
+}
+
+type TnNum struct {
+	Number    string
+	PersonRPH int
+	Type      string
 }
