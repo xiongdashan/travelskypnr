@@ -99,6 +99,10 @@ func TestNoPrice(t *testing.T) {
 	if len(outer.Price) == 0 {
 		t.Error("Price is not 0")
 	}
+	if len(outer.Journey) != 3 {
+		t.Error("Journey is not 3")
+		return
+	}
 }
 
 func TestSimple(t *testing.T) {
