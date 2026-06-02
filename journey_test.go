@@ -90,22 +90,28 @@ func TestFormatDate_YearInference(t *testing.T) {
 			wantDate: "2026-06-08",
 		},
 		{
-			name:     "过去 7 天恰在窗口边界 -> 保持当前年",
-			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
-			input:    "SU07JUN",
-			wantDate: "2026-06-07",
-		},
-		{
-			name:     "过去 8 天超过窗口 -> 滚到下一年",
-			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
-			input:    "SA06JUN",
-			wantDate: "2027-06-06",
-		},
-		{
-			name:     "跨月过去 30 天 -> 滚到下一年",
+			name:     "过去 30 天仍在窗口内 -> 保持当前年",
 			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
 			input:    "FR15MAY",
-			wantDate: "2027-05-15",
+			wantDate: "2026-05-15",
+		},
+		{
+			name:     "过去 64 天仍在窗口内 -> 保持当前年",
+			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
+			input:    "TH11APR",
+			wantDate: "2026-04-11",
+		},
+		{
+			name:     "过去 65 天恰在窗口边界 -> 保持当前年",
+			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
+			input:    "WE10APR",
+			wantDate: "2026-04-10",
+		},
+		{
+			name:     "过去 66 天超过窗口 -> 滚到下一年",
+			now:      time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC),
+			input:    "TU09APR",
+			wantDate: "2027-04-09",
 		},
 		{
 			name:     "年末解析下个月（跨年） -> 滚到下一年",

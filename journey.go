@@ -79,7 +79,10 @@ var nowFn = time.Now
 
 // pastTolerance 是"刚刚出发"窗口：解析出来的日期在过去 ≤ 这个窗口内时，
 // 仍按当前年算（视为同年起飞、补录场景）；超出窗口才滚到下一年。
-const pastTolerance = 7 * 24 * time.Hour
+//
+// 65 天覆盖常见的退票 / 改签 / 对账补录窗口（≈ 2 个月），同时离一年远到
+// 足以把跨年的真正"下个月初的预订"准确滚到下一年。
+const pastTolerance = 65 * 24 * time.Hour
 
 type ArrDep struct {
 	AircaftScheduledDateTime string `json:"aircraftScheduledDateTime"`
